@@ -28,27 +28,11 @@ const ProjectDetails = () => {
         setComments(commentsResponse.data);
       } catch (error) {
         console.error('Error fetching data:', error);
-        setMeetings([]);
-        setComments([]);
       }
     };
 
     fetchData();
   }, [id]);
-
-  useEffect(() => {
-    // This effect will run whenever comments change
-    const handleCommentChange = async () => {
-      try {
-        const updatedCommentsResponse = await axios.get(`http://127.0.0.1:8000/projects/${id}/comments`);
-        setComments(updatedCommentsResponse.data);
-      } catch (error) {
-        console.error('Error fetching updated comments:', error);
-      }
-    };
-
-    handleCommentChange();
-  }, [comments, id]);
 
   const handleAddComment = async () => {
     try {
@@ -66,8 +50,9 @@ const ProjectDetails = () => {
         }
       );
 
-      if (response.status === 200) {
-        // Comment added successfully, useEffect will handle the update
+      if (response.status === 201) {
+        // Comment added successfully
+        setComments([...comments, response.data]); // Update the comments state with the new comment
         setNewComment('');
       } else {
         console.error('Error adding comment:', response.statusText);
@@ -97,10 +82,8 @@ const ProjectDetails = () => {
       );
 
       if (response.status === 201) {
-        // Meeting added successfully, manually trigger fetch for updated meetings
-        const updatedMeetingsResponse = await axios.get(`http://127.0.0.1:8000/projects/${id}/meetings`);
-        setMeetings(updatedMeetingsResponse.data);
-
+        // Meeting added successfully
+        setMeetings([...meetings, response.data]); // Update the meetings state with the new meeting
         setNewMeetingName('');
         setNewMeetingDate('');
       } else {
@@ -153,8 +136,8 @@ const ProjectDetails = () => {
 
       <h3>Comments:</h3>
       <ul>
-        {comments.map((comment, index) => (
-          <li key={index}>
+        {comments.map((comment) => (
+          <li key={comment.id}>
             <strong>{comment.user_name}:</strong> {comment.comment_text} ({new Date(comment.comment_add_date).toLocaleString()})
           </li>
         ))}
