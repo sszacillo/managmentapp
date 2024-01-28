@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../LoginPage/LoginPage.css';
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import { useNavigate } from 'react-router-dom';
 
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -20,15 +22,17 @@ function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorAlert, setErrorAlert] = useState(false);
-  
+  const [projects] = useState([]);
+  const navigate = useNavigate();
+
   useEffect(() => {
     client.get("/accounts/user")
-    .then(function(res) {
-      setCurrentUser(true);
-    })
-    .catch(function(error) {
-      setCurrentUser(false);
-    });
+      .then(function (res) {
+        setCurrentUser(true);
+      })
+      .catch(function (error) {
+        setCurrentUser(false);
+      });
   }, []);
 
   function update_form_btn() {
@@ -43,12 +47,12 @@ function App() {
 
   function displayErrorAlert(errorMessages) {
     setErrorAlert({ show: true, messages: errorMessages });
-  
+
     setTimeout(() => {
       setErrorAlert({ show: false, messages: [] });
     }, 5000);
   }
-  
+
 
   function submitRegistration(e) {
     e.preventDefault();
@@ -62,20 +66,20 @@ function App() {
         username: username,
         password: password
       }
-    ).then(function(res) {
+    ).then(function (res) {
       client.post(
         "/accounts/login",
         {
           username: username,
           password: password
         }
-      ).then(function(res) {
+      ).then(function (res) {
         setCurrentUser(true);
-      }).catch(function(error) {
+      }).catch(function (error) {
         const errorMessages = error.response.data;
         displayErrorAlert(errorMessages);
       });
-    }).catch(function(error) {
+    }).catch(function (error) {
       const errorMessages = error.response.data;
       if (error.response && error.response.status === 400) {
         if (errorMessages && errorMessages.error && errorMessages.error.username) {
@@ -88,7 +92,7 @@ function App() {
       }
       displayErrorAlert(errorMessages);
     });
-    
+
   }
 
   function submitLogin(e) {
@@ -103,45 +107,16 @@ function App() {
         username: username,
         password: password
       }
-    ).then(function(res) {
+    ).then(function (res) {
       setCurrentUser(true);
-    }).catch(function(error) {
+    }).catch(function (error) {
       const errorMessages = error.response.data;
       displayErrorAlert(errorMessages);
     });
   }
 
-  function submitLogout(e) {
-    e.preventDefault();
-    client.post(
-      "/accounts/logout",
-      {withCredentials: true}
-    ).then(function(res) {
-      setCurrentUser(false);
-    });
-  }
-
   if (currentUser) {
-    return (
-      <div>
-        <Navbar bg="dark" variant="dark">
-          <Container>
-            <Navbar.Brand>Project Management</Navbar.Brand>
-            <Navbar.Toggle />
-            <Navbar.Collapse className="justify-content-end">
-              <Navbar.Text>
-                <form onSubmit={e => submitLogout(e)}>
-                  <Button type="submit" variant="light">Log out</Button>
-                </form>
-              </Navbar.Text>
-            </Navbar.Collapse>
-          </Container>
-        </Navbar>
-        <div className="center">
-          <h2>You're logged in!</h2>
-        </div>
-      </div>
-    );
+    return (navigate(`/projects`));
   }
 
   return (
@@ -159,7 +134,7 @@ function App() {
       </Navbar>
       {
         registrationToggle ? (
-          <div className="center">
+          <div className="center d-flex align-items-center" style={{ marginTop: '0vh' }}>
             <Form onSubmit={e => submitRegistration(e)}>
               <Form.Group className="mb-1 text-center" controlId="formBasicTitle">
                 <Form.Label className="label-styles">Registration</Form.Label>
@@ -185,9 +160,9 @@ function App() {
                 )}
               </Form.Group>
             </Form>
-          </div>        
+          </div>
         ) : (
-          <div className="center">
+          <div className="center d-flex align-items-center" style={{ marginTop: '0vh' }}>
             <Form onSubmit={e => submitLogin(e)}>
               <Form.Group className="mb-1 text-center" controlId="formBasicTitle">
                 <Form.Label className="label-styles">Login</Form.Label>

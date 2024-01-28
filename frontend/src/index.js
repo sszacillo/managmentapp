@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './components/LoginPage/LoginPage';
 import ProjectsList from './components/ProjectPage/ProjectPage';
-import ProjectDetails from './components/ProjectDetail/ProjectDetails'; // Import the new component
+import ProjectDetails from './components/ProjectDetail/ProjectDetails';
+import CreateProject from './components/CreateProject/CreateProject'
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -14,7 +15,8 @@ root.render(
     <Routes>
       <Route path="/" element={<LoginPage />} />
       <Route path="/projects" element={<ProjectsList />} />
-      <Route path="/projects/:id/details" element={<ProjectDetails />} /> {/* Add the new route for project details */}
+      <Route path="/projects/:id/details" element={<ProjectDetails />} /> 
+      <Route path="/projects/create" element={<CreateProject />} />
     </Routes>
   </Router>
 );
