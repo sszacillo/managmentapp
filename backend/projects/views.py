@@ -13,6 +13,7 @@ from .models import Project, Task
 from .serializers import ProjectSerializer, TaskSerializer, ProjectWithTaskSerializer, UserUpdateTasksSerializer, ProjectSerializer,Projectwithtaskserializer
 from datetime import datetime
 from .serializers import ProjectTaskSerializer
+from django.shortcuts import get_object_or_404
 
 class IsProjectMember(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -99,7 +100,21 @@ class TaskList(generics.ListCreateAPIView):
             queryset = queryset.filter(project_id=p_id)
         return queryset
 
+class AddTaskAPIView(APIView):
+    def post(self, request, project_id, format=None):
+        try:
+            project = Project.objects.get(pk=project_id)
+        except Project.DoesNotExist:
+            return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
 
+        request.data['project_id'] = project_id
+        serializer = TaskSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 class TaskDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
     permission_classes = [IsAdmin]
@@ -201,3 +216,39 @@ class UserProjectsListView(generics.ListAPIView):
         user = self.request.user
         queryset = Project.objects.filter(project_users=user)
         return queryset
+    
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Task
+from .serializers import TaskSerializer
+from .models import Task, task_status
+
+class ChangeTaskStatusAPIView(APIView):
+    def patch(self, request, task_id):
+        task = Task.objects.get(pk=task_id)
+        new_status = request.data.get('new_status')
+
+        if new_status not in dict(task_status).keys():
+            return Response({'error': 'Invalid status'}, status=status.HTTP_400_BAD_REQUEST)
+
+        task.task_status = new_status
+        task.save()
+
+        serializer = TaskSerializer(task)
+        return Response(serializer.data)
+
+class TaskDeleteAPIView(APIView):
+    def delete(self, request, pk, format=None):
+        try:
+            task = Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            return Response({"message": "Task not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        task.delete()
+        return Response({"message": "Task deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+class ProjectDeleteAPIView(APIView):
+    def delete(self, request, pk):
+        project = get_object_or_404(Project, pk=pk)
+        project.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
