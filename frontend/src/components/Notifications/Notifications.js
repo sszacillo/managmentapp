@@ -7,7 +7,7 @@ import Container from 'react-bootstrap/Container';
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
-  const [setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [disabledButtons, setDisabledButtons] = useState([]);
   const navigate = useNavigate();
 
