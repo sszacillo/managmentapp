@@ -12,6 +12,7 @@ from accounts.models import User
 from .models import Project, Task
 from .serializers import ProjectSerializer, TaskSerializer, ProjectWithTaskSerializer, UserUpdateTasksSerializer, ProjectSerializer,Projectwithtaskserializer
 from datetime import datetime
+from .serializers import ProjectTaskSerializer
 
 class IsProjectMember(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -124,20 +125,20 @@ class ProjectCreateView(generics.CreateAPIView):
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsProjectAdmin]
     serializer_class = ProjectSerializer
-
+    permission_classes = [IsProjectMember]
     def get_queryset(self):
         queryset = Project.objects.all()  
         return queryset
 
 
 class ProjectWithTasksDetailView(generics.ListAPIView):
-    serializer_class = Projectwithtaskserializer
+    serializer_class = ProjectTaskSerializer
     permission_classes = [IsProjectMember]
     lookup_field = 'pk'
+
     def get_queryset(self):
         project_id = self.kwargs.get('pk')
-        user = self.request.user
-        queryset = Project.objects.filter(pk=project_id)
+        queryset = Task.objects.filter(project_id=project_id)
         return queryset
 
 
