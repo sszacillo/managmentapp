@@ -49,3 +49,11 @@ class UserView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response({**serializer.data, 'sessionid': request.session.session_key}, status=status.HTTP_200_OK)
+    
+class UserRoleView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        user_role = request.user.role
+
+        return Response({'role': user_role}, status=status.HTTP_200_OK)

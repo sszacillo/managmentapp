@@ -22,7 +22,6 @@ function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorAlert, setErrorAlert] = useState(false);
-  const [projects] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {

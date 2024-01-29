@@ -15,6 +15,7 @@ const ProjectDetails = () => {
   const [newComment, setNewComment] = useState('');
   const [newMeetingName, setNewMeetingName] = useState('');
   const [newMeetingDate, setNewMeetingDate] = useState('');
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,6 +25,9 @@ const ProjectDetails = () => {
 
         const commentsResponse = await axios.get(`http://127.0.0.1:8000/projects/${id}/comments`);
         setComments(commentsResponse.data);
+
+        const userRoleResponse = await axios.get('http://127.0.0.1:8000/accounts/get_user_role'); 
+        setUserRole(userRoleResponse.data.role);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -97,7 +101,6 @@ const ProjectDetails = () => {
     if (parts.length === 2) return parts.pop().split(';').shift();
   };
 
-  // Prepare events for the calendar
   const events = meetings.map((meeting) => ({
     id: meeting.id,
     title: meeting.meeting_name,
@@ -164,32 +167,34 @@ const ProjectDetails = () => {
         </Card.Body>
       </Card>
 
-      <Card>
-        <Card.Body>
-          <Form>
-            <Form.Group controlId="meetingForm">
-              <Form.Label>Add Meeting:</Form.Label>
-              <Form.Control
-                className='mt-2'
-                type="text"
-                placeholder="Meeting Name"
-                value={newMeetingName}
-                onChange={(e) => setNewMeetingName(e.target.value)}
-              />
-              <Form.Control
-                className='mt-2'
-                type="datetime-local"
-                placeholder="Meeting Date"
-                value={newMeetingDate}
-                onChange={(e) => setNewMeetingDate(e.target.value)}
-              />
-            </Form.Group>
-            <Button className='mt-2' variant="primary" onClick={handleAddMeeting}>
-              Add Meeting
-            </Button>
-          </Form>
-        </Card.Body>
-      </Card>
+      {userRole === 'L' && (
+        <Card>
+          <Card.Body>
+            <Form>
+              <Form.Group controlId="meetingForm">
+                <Form.Label>Add Meeting:</Form.Label>
+                <Form.Control
+                  className='mt-2'
+                  type="text"
+                  placeholder="Meeting Name"
+                  value={newMeetingName}
+                  onChange={(e) => setNewMeetingName(e.target.value)}
+                />
+                <Form.Control
+                  className='mt-2'
+                  type="datetime-local"
+                  placeholder="Meeting Date"
+                  value={newMeetingDate}
+                  onChange={(e) => setNewMeetingDate(e.target.value)}
+                />
+              </Form.Group>
+              <Button className='mt-2' variant="primary" onClick={handleAddMeeting}>
+                Add Meeting
+              </Button>
+            </Form>
+          </Card.Body>
+        </Card>
+      )}
 
       <div className="mt-4" style={{ height: 500 }}>
         <Calendar
