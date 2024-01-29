@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .models import Notification
 from .serializers import NotificationSerializer
 from datetime import datetime
+
 class NotificationListView(generics.ListAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
