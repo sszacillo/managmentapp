@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Card, Alert } from 'react-bootstrap';
+import { Form, Button, Card, Alert, Navbar, Container } from 'react-bootstrap';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const CreateProjectForm = () => {
   const [projectName, setProjectName] = useState('');
@@ -11,7 +11,8 @@ const CreateProjectForm = () => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [availableUsers, setAvailableUsers] = useState([]);
   const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null); // eslint-disable-next-line
+  const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -72,6 +73,18 @@ const CreateProjectForm = () => {
     return `${year}-${month}-${day}`;
   };
 
+  const submitLogout = async () => {
+    try {
+      await fetch('http://127.0.0.1:8000/accounts/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+
   const handleCreateProject = async () => {
     try {
       const csrftoken = getCookie('csrftoken');
@@ -126,7 +139,7 @@ const CreateProjectForm = () => {
         setTimeout(() => {
           setSuccessMessage(null);
           navigate('/projects');
-        }, 3000);
+        }, 5000);
       } else {
         console.error('Error creating project. Status:', response.status);
         console.error('Response data:', response.data);
@@ -139,7 +152,32 @@ const CreateProjectForm = () => {
   };
 
   return (
-    <Card className="m-4">
+    <div>
+      <Navbar bg="dark" variant="dark">
+        <Container>
+          <Navbar.Brand>Project Management - Create Project</Navbar.Brand>
+          <Navbar.Toggle />
+          <Navbar.Collapse className="justify-content-end">
+            <Link to="/projects" className="btn btn-light m-2">
+              Projects List
+            </Link>
+            <Link to="/projects/notifications" className="btn btn-light m-2">
+              Notifications
+            </Link>
+            {userRole === "L" && (
+              <Link to="/projects/create" className="btn btn-light m-2">
+              Create Project
+              </Link>
+            )}
+            <Navbar.Text style={{ marginLeft: '5%' }}>
+              <Button onClick={submitLogout} variant="light">
+                Log out
+              </Button>
+            </Navbar.Text>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+      <Card className="m-4">
       <Card.Body>
         {error && <Alert variant="danger">{error}</Alert>}
         {successMessage && <Alert variant="success">{successMessage}</Alert>}
@@ -211,6 +249,7 @@ const CreateProjectForm = () => {
                 <li key={user.id}>
                   {user.username}
                   <Button
+                    className='mb-2'
                     variant="outline-danger"
                     size="sm"
                     onClick={() => handleRemoveUser(user.id)}
@@ -229,6 +268,7 @@ const CreateProjectForm = () => {
         </Form>
       </Card.Body>
     </Card>
+    </div>
   );
 };
 

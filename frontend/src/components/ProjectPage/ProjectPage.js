@@ -35,7 +35,6 @@ const ProjectsList = () => {
       setLoading(false);
     }
     
-    
   };
 
   const handleGoToProject = (projectId) => {
@@ -62,8 +61,6 @@ const ProjectsList = () => {
         method: 'POST',
         credentials: 'include',
       });
-
-      // Przekieruj użytkownika do sekcji logowania
       navigate('/');
     } catch (error) {
       console.error('Error during logout:', error);
@@ -78,14 +75,14 @@ const ProjectsList = () => {
     <div>
       <Navbar bg="dark" variant="dark">
         <Container>
-          <Navbar.Brand>Project Management - Project List</Navbar.Brand>
+          <Navbar.Brand>Project Management - Projects List</Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
+            <Link to="/projects" className="btn btn-light m-2">
+              Projects List
+            </Link>
             <Link to="/projects/notifications" className="btn btn-light m-2">
               Notifications
-            </Link>
-            <Link to="/projects/create" className="btn btn-light m-2">
-              Create Project
             </Link>
             <Navbar.Text style={{ marginLeft: '5%' }}>
               <Button onClick={submitLogout} variant="light">
@@ -111,7 +108,12 @@ const ProjectsList = () => {
             </Card>
           ) : (
             <>
-              {projects.map((project) => (
+              {userRole === "L" && (
+              <Link to="/projects/create" className="btn btn-dark m-5">
+                Create new project
+              </Link>
+              )}
+              {projects.map((project) => ( 
               <Card key={project.id} style={{ width: '90%', margin: '2%' }}>
               <Card.Body>
                 <Card.Title>{project.project_name}</Card.Title>

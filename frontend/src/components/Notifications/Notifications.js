@@ -7,8 +7,9 @@ import Container from 'react-bootstrap/Container';
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loadingNotifications, setLoadingNotifications] = useState(true); // eslint-disable-next-line
-  const [submitting, setSubmitting] = useState(false); 
-  const [disabledButtons, setDisabledButtons] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [disabledButtons, setDisabledButtons] = useState([]); // eslint-disable-next-line
+  const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
 
   const fetchNotifications = async () => {
@@ -31,6 +32,18 @@ const Notifications = () => {
       setLoadingNotifications(false);
     }
   };
+
+  const submitLogout = async () => {
+    try {
+      await fetch('http://127.0.0.1:8000/accounts/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
   
 
   const handleMarkAsSeen = async (notificationId) => {
@@ -47,7 +60,6 @@ const Notifications = () => {
       });
 
       if (response.ok) {
-        // Aktualizacja lokalnego stanu po udanym zaktualizowaniu statusu
         setNotifications((prevNotifications) =>
           prevNotifications.map((notification) => ({
             ...notification,
@@ -55,7 +67,6 @@ const Notifications = () => {
           }))
         );
 
-        // Dezaktywacja przycisku dla zaktualizowanej notyfikacji
         setDisabledButtons((prevDisabledButtons) => [...prevDisabledButtons, notificationId]);
       } else {
         console.error('Error updating notifications status:', response.status);
@@ -79,13 +90,18 @@ const Notifications = () => {
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Link to="/projects" className="btn btn-light m-2">
-              Projects
+              Projects List
             </Link>
-            <Link to="/projects/create" className="btn btn-light m-2">
+            <Link to="/projects/notifications" className="btn btn-light m-2">
+              Notifications
+            </Link>
+            {userRole === "L" && (
+              <Link to="/projects/create" className="btn btn-light m-2">
               Create Project
-            </Link>
+              </Link>
+            )}
             <Navbar.Text style={{ marginLeft: '5%' }}>
-              <Button onClick={() => navigate('/')} variant="light">
+              <Button onClick={submitLogout} variant="light">
                 Log out
               </Button>
             </Navbar.Text>
@@ -121,7 +137,7 @@ const Notifications = () => {
                   <Button
                     variant="primary"
                     onClick={(e) => {
-                      e.stopPropagation(); // Zapobiega wywołaniu onClick dla karty
+                      e.stopPropagation(); 
                       handleMarkAsSeen(notification.id);
                     }}
                     disabled={disabledButtons.includes(notification.id) || notification.notification_status === 'seen'}
@@ -140,3 +156,4 @@ const Notifications = () => {
 };
 
 export default Notifications;
+

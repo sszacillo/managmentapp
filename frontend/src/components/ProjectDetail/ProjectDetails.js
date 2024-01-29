@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { Table, Form, Button, Card } from "react-bootstrap";
+import { Link, useParams , useNavigate} from "react-router-dom";
+import { Table, Form, Button, Card , Alert, Navbar, Container} from "react-bootstrap";
 import axios from "axios";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
@@ -21,12 +21,13 @@ const ProjectDetails = () => {
   const [filteredStatus, setFilteredStatus] = useState("All");
   const [startDateFilter, setStartDateFilter] = useState(null);
   const [endDateFilter, setEndDateFilter] = useState(null);
-
+  const [successMessage, setSuccessMessage] = useState(null);
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
   const [newTaskStatus, setNewTaskStatus] = useState("Do zrobienia");
   const [newTaskStartDate, setNewTaskStartDate] = useState("");
   const [newTaskEndDate, setNewTaskEndDate] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,6 +65,18 @@ const ProjectDetails = () => {
     if (parts.length === 2) return parts.pop().split(';').shift();
   };
 
+  const submitLogout = async () => {
+    try {
+      await fetch('http://127.0.0.1:8000/accounts/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+
   const handleAddComment = async () => {
     try {
       const csrftoken = getCookie('csrftoken');
@@ -83,6 +96,12 @@ const ProjectDetails = () => {
       if (response.status === 201) {
         setComments([...comments, response.data]);
         setNewComment('');
+        setSuccessMessage('Comment added successfully.');
+
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 3000);
+
       } else {
         console.error('Error adding comment:', response.statusText);
       }
@@ -114,6 +133,11 @@ const ProjectDetails = () => {
         setMeetings([...meetings, response.data]);
         setNewMeetingName('');
         setNewMeetingDate('');
+        setSuccessMessage('Meeting added successfully.');
+
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 3000);
       } else {
         console.error('Error adding meeting:', response.statusText);
       }
@@ -151,6 +175,11 @@ const ProjectDetails = () => {
         setNewTaskStatus('Do zrobienia');
         setNewTaskStartDate('');
         setNewTaskEndDate('');
+        setSuccessMessage('Task added successfully.');
+
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 3000);
       } else {
         console.error('Error adding task:', response.statusText);
       }
@@ -174,7 +203,6 @@ const ProjectDetails = () => {
       );
 
       if (response.status === 204) {
-        // Remove the deleted task from the tasks state
         setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
         console.log('Task deleted successfully.');
       } else {
@@ -203,17 +231,21 @@ const ProjectDetails = () => {
         `http://127.0.0.1:8000/projects/change-task-status/${taskId}/`,
         { new_status: newStatus }
       );
-
-      // Assuming your API returns the updated task data
+  
       const updatedTask = response.data;
 
-      // Update the tasks state with the updated task
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
           task.id === updatedTask.id ? updatedTask : task
         )
       );
-
+  
+      setSuccessMessage(`Task status updated to "${newStatus}" successfully.`);
+  
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+  
       console.log("Task status updated successfully.");
     } catch (error) {
       console.error("Error updating task status:", error);
@@ -222,7 +254,7 @@ const ProjectDetails = () => {
 
   const isTaskWithinDateRange = (task) => {
     if (!startDateFilter || !endDateFilter) {
-      return true; // Jeśli filtry daty nie są ustawione, zwróć true, aby pokazać wszystkie zadania
+      return true;
     }
 
     const taskEndDate = new Date(task.task_end_date).getTime();
@@ -258,45 +290,68 @@ const ProjectDetails = () => {
   const localizer = momentLocalizer(moment);
 
   return (
+    <div>
+      <Navbar bg="dark" variant="dark">
+        <Container>
+          <Navbar.Brand>Project Management - Project Details</Navbar.Brand>
+          <Navbar.Toggle />
+          <Navbar.Collapse className="justify-content-end">     
+            <Link to="/projects" className="btn btn-light m-2">
+              Back to projects
+            </Link>
+            <Navbar.Text style={{ marginLeft: '5%' }}>
+              <Button onClick={submitLogout} variant="light">
+                Log out
+              </Button>
+            </Navbar.Text>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
     <div className="m-4">
       <Card className="mb-4">
         <Card.Body>
           <Card.Title>Project Details for {id}</Card.Title>
           <Card.Title className="mt-4">Tasks:</Card.Title>
 
-          <Form.Group controlId="filterStatus">
-            <Form.Label>Filter by Status:</Form.Label>
-            <Form.Control
-              as="select"
-              value={filteredStatus}
-              onChange={handleFilterChange}
-            >
-              <option value="All">All</option>
-              {statusOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
-
-          <Form.Group controlId="startDateFilter">
-            <Form.Label>Start Date Filter:</Form.Label>
-            <Form.Control
-              type="date"
-              value={startDateFilter}
-              onChange={handleStartDateChange}
-            />
-          </Form.Group>
-
-          <Form.Group controlId="endDateFilter">
-            <Form.Label>End Date Filter:</Form.Label>
-            <Form.Control
-              type="date"
-              value={endDateFilter}
-              onChange={handleEndDateChange}
-            />
-          </Form.Group>
+          <div className="row">
+            <div className="col-md-4">
+              <Form.Group controlId="filterStatus">
+                <Form.Label>Filter by Status:</Form.Label>
+                <Form.Control
+                  as="select"
+                  value={filteredStatus}
+                  onChange={handleFilterChange}
+                >
+                  <option value="All">All</option>
+                  {statusOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+            </div>
+            <div className="col-md-4">
+              <Form.Group controlId="startDateFilter">
+                <Form.Label>Start Date Filter:</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={startDateFilter}
+                  onChange={handleStartDateChange}
+                />
+              </Form.Group>
+            </div>
+            <div className="col-md-4">
+              <Form.Group controlId="endDateFilter">
+                <Form.Label>End Date Filter:</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={endDateFilter}
+                  onChange={handleEndDateChange}
+                />
+              </Form.Group>
+            </div>
+          </div>
 
           <Table className="mt-3"striped bordered hover>
             <thead>
@@ -378,6 +433,7 @@ const ProjectDetails = () => {
             ))}
           </ul>
         </Card.Body>
+        {successMessage && <Alert className='m-2' variant="success">{successMessage}</Alert>}
       </Card>
 
       <Card className="mb-4">
@@ -403,6 +459,41 @@ const ProjectDetails = () => {
           </Form>
         </Card.Body>
       </Card>
+
+      {userRole === "L" && (
+        <Card className="mb-3">
+          <Card.Body>
+            <Form>
+              <Form.Group controlId="meetingForm">
+                <Form.Label>Add Meeting:</Form.Label>
+                <Form.Control
+                  className="mt-2"
+                  type="text"
+                  placeholder="Meeting Name"
+                  value={newMeetingName}
+                  onChange={(e) => setNewMeetingName(e.target.value)}
+                />
+                <Form.Control
+                  className="mt-2"
+                  type="datetime-local"
+                  placeholder="Meeting Date"
+                  value={newMeetingDate}
+                  onChange={(e) => setNewMeetingDate(e.target.value)}
+                />
+              </Form.Group>
+              <Button
+                className="mt-2"
+                variant="primary"
+                onClick={handleAddMeeting}
+              >
+                Add Meeting
+              </Button>
+            </Form>
+          </Card.Body>
+        </Card>
+      )}
+
+
       {userRole === "L" && (
             <Card className="mb-3">
               <Card.Body>
@@ -471,40 +562,6 @@ const ProjectDetails = () => {
               </Card.Body>
             </Card>
           )}
-      
-
-      {userRole === "L" && (
-        <Card>
-          <Card.Body>
-            <Form>
-              <Form.Group controlId="meetingForm">
-                <Form.Label>Add Meeting:</Form.Label>
-                <Form.Control
-                  className="mt-2"
-                  type="text"
-                  placeholder="Meeting Name"
-                  value={newMeetingName}
-                  onChange={(e) => setNewMeetingName(e.target.value)}
-                />
-                <Form.Control
-                  className="mt-2"
-                  type="datetime-local"
-                  placeholder="Meeting Date"
-                  value={newMeetingDate}
-                  onChange={(e) => setNewMeetingDate(e.target.value)}
-                />
-              </Form.Group>
-              <Button
-                className="mt-2"
-                variant="primary"
-                onClick={handleAddMeeting}
-              >
-                Add Meeting
-              </Button>
-            </Form>
-          </Card.Body>
-        </Card>
-      )}
 
       <div className="mt-4" style={{ height: 500 }}>
         <Calendar
@@ -515,6 +572,7 @@ const ProjectDetails = () => {
           views={["month", "week", "day"]}
         />
       </div>
+    </div>
     </div>
   );
 };
