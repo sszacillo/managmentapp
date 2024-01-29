@@ -59,10 +59,13 @@ const ProjectsList = () => {
           <Navbar.Brand>Project Management - Project List</Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
+            <Link to="/projects/notifications" className="btn btn-light m-2">
+              Notifications
+            </Link>
             <Link to="/projects/create" className="btn btn-light m-2">
               Create Project
             </Link>
-            <Navbar.Text className="ml-2">
+            <Navbar.Text style={{ marginLeft: '5%' }}>
               <Button onClick={submitLogout} variant="light">
                 Log out
               </Button>
@@ -74,7 +77,7 @@ const ProjectsList = () => {
         {loading ? (
           <Card style={{ marginTop: '5%' }}>
             <Card.Body>
-              <Card.Text className="text-center">No projects available.</Card.Text>
+              <Card.Text className="text-center">Loading projects...</Card.Text>
             </Card.Body>
           </Card>
         ) : (

@@ -4,7 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './components/LoginPage/LoginPage';
 import ProjectsList from './components/ProjectPage/ProjectPage';
 import ProjectDetails from './components/ProjectDetail/ProjectDetails';
-import CreateProject from './components/CreateProject/CreateProject'
+import CreateProject from './components/CreateProject/CreateProject';
+import Notifications from './components/Notifications/Notifications';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -17,6 +18,9 @@ root.render(
       <Route path="/projects" element={<ProjectsList />} />
       <Route path="/projects/:id/details" element={<ProjectDetails />} /> 
       <Route path="/projects/create" element={<CreateProject />} />
+      <Route path="/projects/notifications" element={<Notifications />} />
+      
+      
     </Routes>
   </Router>
 );
