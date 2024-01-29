@@ -35,9 +35,7 @@ const ProjectsList = () => {
       setLoading(false);
     }
     
-    const userRoleResponse = await axios.get(
-      "http://127.0.0.1:8000/accounts/get_user_role"
-    );
+    
   };
 
   const handleGoToProject = (projectId) => {

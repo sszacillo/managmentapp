@@ -192,6 +192,7 @@ class TaskUserUpdate(generics.RetrieveUpdateAPIView):
         task = Task.objects.filter(
             pk=task_id, project_id__project_users=user).first()
         return task
+    
 class TaskSortView(generics.ListAPIView):
      serializer_class = TaskSerializer
      
@@ -208,6 +209,7 @@ class TaskSortView(generics.ListAPIView):
                 queryset = Task.objects.all()
 
             return queryset
+            
 class UserProjectsListView(generics.ListAPIView):
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated]
@@ -247,6 +249,7 @@ class TaskDeleteAPIView(APIView):
 
         task.delete()
         return Response({"message": "Task deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    
 class ProjectDeleteAPIView(APIView):
     def delete(self, request, pk):
         project = get_object_or_404(Project, pk=pk)

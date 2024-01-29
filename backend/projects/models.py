@@ -37,7 +37,7 @@ def create_default_task(sender, instance, created, **kwargs):
     if created:
         Task.objects.create(
             task_name=f"Default Task for {instance.project_name}",
-            task_description="This is the default task for the project.",
+            task_description="The purpose of this stage is to determine: the project topic, the scope of the project, and the team composition.",
             task_status="Do zrobienia",
             task_start_date=instance.project_start_date,
             task_end_date=instance.project_end_date,

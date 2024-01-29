@@ -298,7 +298,7 @@ const ProjectDetails = () => {
             />
           </Form.Group>
 
-          <Table striped bordered hover>
+          <Table className="mt-3"striped bordered hover>
             <thead>
               <tr>
                 <th>ID</th>
@@ -404,7 +404,7 @@ const ProjectDetails = () => {
         </Card.Body>
       </Card>
       {userRole === "L" && (
-            <Card>
+            <Card className="mb-3">
               <Card.Body>
                 <Form>
                   <Form.Group controlId="newTaskName">

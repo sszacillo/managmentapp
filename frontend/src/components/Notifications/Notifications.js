@@ -6,8 +6,8 @@ import Container from 'react-bootstrap/Container';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
-  const [loadingNotifications, setLoadingNotifications] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [loadingNotifications, setLoadingNotifications] = useState(true); // eslint-disable-next-line
+  const [submitting, setSubmitting] = useState(false); 
   const [disabledButtons, setDisabledButtons] = useState([]);
   const navigate = useNavigate();
 
